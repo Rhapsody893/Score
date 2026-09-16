@@ -1,4 +1,4 @@
-const CACHE = 'score-v1';
+const CACHE = 'score-v3';
 const FILES = [
   './',
   './index.html',
