@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Score</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<link rel="icon" type="image/png" href="./favicon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Score">
+<meta name="theme-color" content="#0e0e12">
+<style>
+:root{--bg:#0e0e12;--su:#1a1a22;--s2:#22222e;--ac:#7c6aff;--ac2:#c084fc;--tx:#f0eff8;--t2:#9896b0;--bo:rgba(255,255,255,0.08);--st:#f59e0b;--sp:#34d399;--re:#f87171;--r:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,sans-serif;min-height:100vh;padding:calc(1.25rem + env(safe-area-inset-top)) calc(1rem + env(safe-area-inset-right)) calc(4rem + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left));-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+header{text-align:center;margin-bottom:1.4rem}
+h1{font-size:1.3rem;font-weight:700;letter-spacing:-.02em;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-top:.2rem}
+.sub{font-size:.76rem;color:var(--t2);margin-top:.2rem;display:flex;align-items:center;justify-content:center;gap:5px}
+.dot{width:7px;height:7px;border-radius:50%;background:#555;flex-shrink:0;transition:background .3s}
+.dot.on{background:var(--sp)}
+.tabs{display:flex;gap:4px;background:var(--su);border-radius:var(--r);padding:4px;margin-bottom:1rem}
+.tab{flex:1;padding:.5rem;border:none;border-radius:9px;background:transparent;color:var(--t2);font-size:.8rem;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.tab.active{background:var(--s2);color:var(--tx)}
+.btn{font-size:.8rem;padding:.4rem .85rem;border-radius:8px;border:1px solid var(--bo);background:var(--su);color:var(--tx);cursor:pointer;font-family:inherit;transition:all .15s}
+.btn:hover{background:var(--s2);border-color:var(--ac);color:var(--ac)}
+.btn-p{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+.btn-p:hover{background:#6a58ee;border-color:#6a58ee;color:#fff}
+.btn-d{color:var(--re);border-color:rgba(248,113,113,.25)}
+.btn-d:hover{background:rgba(248,113,113,.08);border-color:var(--re);color:var(--re)}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;gap:8px}
+.sh-t{font-size:.88rem;font-weight:600}
+.card{background:var(--su);border-radius:var(--r);border:1px solid var(--bo)}
+.join{padding:1.5rem 1.25rem;text-align:center}
+.join-t{font-size:1rem;font-weight:700;margin-bottom:.4rem}
+.join-s{font-size:.82rem;color:var(--t2);margin-bottom:1.1rem;line-height:1.55}
+.in{width:100%;background:var(--s2);border:1px solid var(--bo);border-radius:8px;padding:.65rem .75rem;color:var(--tx);font-size:.92rem;outline:none;font-family:inherit;margin-bottom:.75rem}
+.in:focus{border-color:var(--ac)}
+.watchers{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem}
+.wchip{display:flex;align-items:center;gap:5px;background:var(--su);border:1px solid var(--bo);border-radius:20px;padding:.25rem .65rem;font-size:.74rem;color:var(--t2)}
+.wchip.me{border-color:rgba(124,106,255,.35);color:var(--ac2)}
+.pc{background:var(--su);border-radius:var(--r);border:1px solid var(--bo);overflow:hidden;transition:border-color .2s}
+.pc.ac{border-color:var(--ac)}
+.pg{display:flex;flex-direction:column;gap:.7rem}
+.ph{display:flex;align-items:center;gap:10px;padding:.7rem .85rem;border-bottom:1px solid var(--bo)}
+.av{width:33px;height:33px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;flex-shrink:0}
+.pn{font-weight:600;font-size:.86rem}
+.pl{font-size:.65rem;color:var(--t2)}
+.ps{font-size:1.4rem;font-weight:800;letter-spacing:-.03em}
+.fr-row{padding:.5rem .65rem;overflow-x:auto;scrollbar-width:none}
+.fr-row::-webkit-scrollbar{display:none}
+.fi{display:flex;gap:3px;min-width:max-content}
+.fr{background:var(--s2);border-radius:6px;border:1px solid var(--bo)}
+.fr.w2{width:37px}.fr.w3{width:53px}
+.fn{text-align:center;font-size:.55rem;color:var(--t2);padding:2px 0;border-bottom:1px solid var(--bo)}
+.fb{display:flex;justify-content:center;align-items:center;gap:2px;padding:3px 2px;min-height:23px}
+.bl{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:700;background:var(--su);border:1px solid var(--bo);color:var(--t2);flex-shrink:0}
+.bl.X{background:rgba(245,158,11,.15);color:var(--st);border-color:rgba(245,158,11,.3)}
+.bl.S{background:rgba(52,211,153,.12);color:var(--sp);border-color:rgba(52,211,153,.25)}
+.bl.G{color:#444}
+.fs{text-align:center;font-size:.6rem;color:var(--t2);padding:2px 0;min-height:14px}
+.fs.done{color:var(--ac);font-weight:600}
+.ipad{background:var(--su);border-radius:var(--r);border:1px solid var(--bo);padding:.9rem;margin-bottom:.75rem}
+.iw{font-size:.8rem;color:var(--t2);margin-bottom:.55rem}
+.iw strong{color:var(--tx)}
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.pb{padding:.5rem .2rem;border-radius:8px;border:1px solid var(--bo);background:var(--s2);color:var(--tx);font-size:.85rem;font-weight:600;cursor:pointer;text-align:center;font-family:inherit;transition:all .1s}
+.pb:hover{border-color:var(--ac);color:var(--ac)}
+.pb:active{transform:scale(.95)}
+.pb.pX{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:var(--st)}
+.pb.pS{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.25);color:var(--sp)}
+.pb.p0{color:#555}
+.ub{display:flex;align-items:center;justify-content:space-between;margin-top:.55rem;padding-top:.55rem;border-top:1px solid var(--bo)}
+.ul{font-size:.72rem;color:var(--t2)}
+.end{background:var(--su);border-radius:var(--r);border:1px solid var(--bo);padding:1.1rem;text-align:center;margin-bottom:.8rem}
+.et{font-size:.95rem;font-weight:700;margin-bottom:.2rem}
+.es{font-size:.8rem;color:var(--t2);margin-bottom:.85rem}
+.list{display:flex;flex-direction:column;gap:6px}
+.row{background:var(--su);border-radius:var(--r);padding:.7rem .85rem;display:flex;align-items:center;gap:10px;border:1px solid var(--bo)}
+.rank{font-size:.9rem;width:22px;text-align:center}
+.rname{flex:1;font-weight:600;font-size:.86rem}
+.rsub{font-size:.72rem;color:var(--t2)}
+.rscore{font-size:1.15rem;font-weight:800}
+.chip{font-size:.63rem;padding:2px 7px;border-radius:20px;background:rgba(245,158,11,.1);color:var(--st);border:1px solid rgba(245,158,11,.25)}
+.empty{text-align:center;padding:2rem .75rem;color:var(--t2)}
+.ei{font-size:2rem;margin-bottom:.5rem}
+.empty p{font-size:.85rem;line-height:1.6}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:100}
+.modal{background:var(--su);border-radius:16px;border:1px solid var(--bo);padding:1.25rem;width:100%;max-width:300px}
+.modal h2{font-size:.95rem;font-weight:700;margin-bottom:.85rem}
+.ml{display:flex;flex-direction:column;gap:5px;margin-bottom:.85rem;max-height:180px;overflow-y:auto}
+.mr{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:8px;padding:.45rem .6rem}
+.mr .pn{flex:1;font-size:.83rem}
+.ma{display:flex;gap:8px}
+.ma .btn{flex:1}
+.err{font-size:.75rem;color:var(--re);margin:-.4rem 0 .6rem}
+.toast{position:fixed;bottom:1.1rem;left:50%;transform:translateX(-50%) translateY(70px);background:var(--s2);border:1px solid var(--bo);border-radius:10px;padding:.55rem 1rem;font-size:.8rem;font-weight:500;transition:transform .22s;z-index:200;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.sb{background:var(--su);border:1px solid var(--bo);border-radius:var(--r);padding:.6rem .8rem;display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--t2)}
+.sb b{color:var(--tx);font-weight:600;font-family:ui-monospace,monospace;letter-spacing:.04em}
+.sb .btn{padding:.28rem .6rem;font-size:.72rem;margin-left:auto;flex-shrink:0}
+.note{font-size:.74rem;color:var(--t2);text-align:center;padding:.85rem;line-height:1.5}
+</style>
+</head>
+<body>
+<h2 class="sr-only">Score — punteggi bowling condivisi in tempo reale</h2>
+
+<header>
+  <svg viewBox="0 0 96 48" width="92" height="46" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">
+    <rect width="96" height="48" rx="10" fill="#1a1a22"/>
+    <rect width="96" height="48" rx="10" fill="none" stroke="#7c6aff" stroke-width="1.5"/>
+    <text x="6" y="14" font-family="system-ui,sans-serif" font-size="9" fill="#9896b0" font-weight="600">10</text>
+    <line x1="0" y1="20" x2="96" y2="20" stroke="#7c6aff" stroke-width="1"/>
+    <text x="8" y="40" font-family="system-ui,sans-serif" font-size="20" fill="#f0eff8" font-weight="700">8</text>
+    <text x="34" y="40" font-family="system-ui,sans-serif" font-size="20" fill="#34d399" font-weight="700">/</text>
+    <text x="62" y="40" font-family="system-ui,sans-serif" font-size="20" fill="#f59e0b" font-weight="700">X</text>
+  </svg>
+  <h1>Score</h1>
+  <div class="sub"><span class="dot" id="cdot"></span><span id="ctxt">Connessione…</span></div>
+</header>
+
+<script src="./firebase-config.js"></script>
+<div id="syncbar" style="display:none;margin-bottom:.9rem"></div>
+<div id="app"></div>
+
+<div class="ov" id="modal" style="display:none"><div class="modal">
+  <h2>Gestisci giocatori</h2>
+  <div class="ml" id="ml"></div>
+  <input class="in" id="pi" placeholder="Nome giocatore" maxlength="18">
+  <div class="err" id="pi-err" style="display:none"></div>
+  <div class="ma"><button class="btn" id="mclose">Chiudi</button><button class="btn btn-p" id="madd">Aggiungi</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PAL=[{bg:'rgba(124,106,255,.18)',c:'#a78bfa'},{bg:'rgba(52,211,153,.15)',c:'#34d399'},{bg:'rgba(245,158,11,.15)',c:'#fbbf24'},{bg:'rgba(248,113,113,.15)',c:'#f87171'},{bg:'rgba(192,132,252,.15)',c:'#c084fc'},{bg:'rgba(56,189,248,.15)',c:'#38bdf8'}];
+
+// ── local view state ──────────────────────────────────────
+var db=null,room=null;
+var G=null;                 // game doc body, or null until first snapshot
+var HIST=[];                // history entries
+var TAB='game';
+var MYNAME=null;
+var PEERS=[];               // [{peer,name,isMe}]
+var DBREADY=false;
+var SEEDED=false;
+
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+
+// ── bowling logic ─────────────────────────────────────────
+function emptyFrames(){var a=[];for(var i=0;i<10;i++)a.push({balls:[]});return a}
+
+function availablePins(f,fi,bi){
+  var b=f[fi].balls;
+  if(fi<9)return bi===0?10:10-b[0];
+  if(bi===0)return 10;
+  if(bi===1)return b[0]===10?10:10-b[0];
+  if(bi===2){
+    if(b[0]===10&&b[1]===10)return 10;
+    if(b[0]===10)return 10-b[1];
+    return 10;
+  }
+  return 0;
+}
+function tenthDone(b){
+  if(b.length<2)return false;
+  if(b[0]===10||b[0]+b[1]===10)return b.length>=3;
+  return true;
+}
+function nextDel(f,fi,off){
+  var c=0;
+  for(var i=fi;i<10;i++){
+    var s=(i===fi)?1:0;
+    for(var j=s;j<f[i].balls.length;j++){c++;if(c===off)return f[i].balls[j]}
+  }
+  return null;
+}
+function scores(f){
+  var out=[],t=0;
+  for(var i=0;i<10;i++){
+    var b=f[i].balls;out[i]=null;
+    if(!b.length)continue;
+    if(i<9){
+      if(b[0]===10){
+        var a=nextDel(f,i,1),c=nextDel(f,i,2);
+        if(a===null||c===null)continue;
+        t+=10+a+c;out[i]=t;
+      }else if(b.length>=2&&b[0]+b[1]===10){
+        var d=nextDel(f,i,1);if(d===null)continue;
+        t+=10+d;out[i]=t;
+      }else if(b.length>=2){t+=b[0]+b[1];out[i]=t}
+    }else{
+      if(b.length<2)continue;
+      if((b[0]===10||b[0]+b[1]===10)&&b.length<3)continue;
+      t+=b.reduce(function(x,y){return x+y},0);out[i]=t;
+    }
+  }
+  return out;
+}
+function total(f){var s=scores(f);for(var i=9;i>=0;i--)if(s[i]!==null)return s[i];return 0}
+function label(f,fi,bi){
+  var b=f[fi].balls,v=b[bi];
+  if(v===undefined)return'';
+  if(fi<9){
+    if(bi===0)return v===10?'X':(v===0?'—':''+v);
+    return b[0]+v===10?'/':(v===0?'—':''+v);
+  }
+  if(bi===0)return v===10?'X':(v===0?'—':''+v);
+  if(bi===1){
+    if(b[0]===10)return v===10?'X':(v===0?'—':''+v);
+    return b[0]+v===10?'/':(v===0?'—':''+v);
+  }
+  if(v===10)return'X';
+  if(b[0]===10&&b[1]!==10&&b[1]+v===10)return'/';
+  return v===0?'—':''+v;
+}
+function blcls(l){return l==='X'?'bl X':l==='/'?'bl S':l==='—'?'bl G':'bl'}
+
+// ── db writes ─────────────────────────────────────────────
+var writing=false;
+function writeGame(g){
+  if(!db||writing)return Promise.resolve();
+  writing=true;
+  return db.doc('game/state').set(g).catch(function(e){
+    showToast(e&&e.code==='quota_exceeded'?'Spazio esaurito':'Salvataggio non riuscito');
+  }).then(function(){writing=false});
+}
+function writeHist(entries){
+  if(!db)return Promise.resolve();
+  return db.doc('game/history').set({entries:entries}).catch(function(){
+    showToast('Storico non salvato');
+  });
+}
+
+// ── actions ───────────────────────────────────────────────
+function blankGame(players){
+  return{players:players||[],activePlayer:0,activeFrame:0,ballInFrame:0,undo:null,finished:false,date:new Date().toLocaleDateString('it-IT')};
+}
+function newGame(){
+  if(!G||!G.players.length){openModal();return}
+  if(!G.finished&&(G.activeFrame>0||G.ballInFrame>0)){
+    if(!confirm('Abbandonare la partita in corso?'))return;
+  }
+  var ps=G.players.map(function(p,i){return{name:p.name,colorIdx:i,frames:emptyFrames()}});
+  writeGame(blankGame(ps));
+}
+function recordBall(pins){
+  if(!G||G.finished)return;
+  var g=JSON.parse(JSON.stringify(G));
+  g.undo={ap:g.activePlayer,af:g.activeFrame,bf:g.ballInFrame,
+          frames:JSON.parse(JSON.stringify(g.players[g.activePlayer].frames))};
+  var p=g.players[g.activePlayer];
+  p.frames[g.activeFrame].balls.push(pins);
+  // advance
+  var f=p.frames[g.activeFrame],done;
+  if(g.activeFrame<9)done=(f.balls[0]===10)||f.balls.length>=2;
+  else done=tenthDone(f.balls);
+  if(done){
+    g.ballInFrame=0;g.activePlayer++;
+    if(g.activePlayer>=g.players.length){g.activePlayer=0;g.activeFrame++}
+  }else g.ballInFrame++;
+  if(g.activeFrame>=10){
+    g.activeFrame=9;g.finished=true;
+    var h=HIST.slice();
+    g.players.forEach(function(pl){
+      var sc=total(pl.frames);
+      h.push({date:g.date,name:pl.name,colorIdx:pl.colorIdx,score:sc,perfect:sc===300});
+    });
+    if(h.length>200)h=h.slice(h.length-200);
+    writeHist(h);
+  }
+  writeGame(g);
+}
+function undoLast(){
+  if(!G||!G.undo)return;
+  var g=JSON.parse(JSON.stringify(G)),u=g.undo;
+  g.players[u.ap].frames=u.frames;
+  g.activePlayer=u.ap;g.activeFrame=u.af;g.ballInFrame=u.bf;
+  g.finished=false;g.undo=null;
+  writeGame(g);
+}
+function addPlayer(){
+  var el=document.getElementById('pi'),err=document.getElementById('pi-err');
+  var name=el.value.trim();
+  if(!name){err.textContent='Scrivi un nome';err.style.display='';return}
+  if(G&&G.players.some(function(p){return p.name.toLowerCase()===name.toLowerCase()})){
+    err.textContent='Nome già in uso';err.style.display='';return;
+  }
+  if(G&&G.players.length>=6){err.textContent='Massimo 6 giocatori';err.style.display='';return}
+  err.style.display='none';
+  var g=G?JSON.parse(JSON.stringify(G)):blankGame([]);
+  g.players.push({name:name,colorIdx:g.players.length,frames:emptyFrames()});
+  if(!g.finished&&g.activeFrame===0&&g.ballInFrame===0)g.undo=null;
+  el.value='';
+  writeGame(g).then(function(){showToast(name+' aggiunto')});
+}
+function removePlayer(i){
+  if(!G)return;
+  if(!G.finished&&(G.activeFrame>0||G.ballInFrame>0)){showToast('Finisci la partita prima');return}
+  var g=JSON.parse(JSON.stringify(G));
+  var gone=g.players.splice(i,1)[0];
+  g.players.forEach(function(p,j){p.colorIdx=j});
+  if(g.activePlayer>=g.players.length)g.activePlayer=0;
+  writeGame(g).then(function(){showToast(gone.name+' rimosso')});
+}
+function clearHist(){
+  if(!confirm('Cancellare tutto lo storico?'))return;
+  writeHist([]);
+}
+function joinAs(){
+  var el=document.getElementById('joinin'),err=document.getElementById('join-err');
+  var n=el.value.trim();
+  if(!n){err.textContent='Scrivi il tuo nome';err.style.display='';return}
+  MYNAME=n;
+  try{localStorage.setItem('score_name',n)}catch(e){}
+  render();
+}
+
+// ── render ────────────────────────────────────────────────
+function render(){
+  var app=document.getElementById('app');
+  app.innerHTML=tabsHTML()+(TAB==='game'?gameHTML():TAB==='lb'?lbHTML():histHTML());
+  wire();
+}
+function tabsHTML(){
+  function t(id,lbl){return'<button class="tab'+(TAB===id?' active':'')+'" data-tab="'+id+'">'+lbl+'</button>'}
+  return'<div class="tabs">'+t('game','Partita')+t('lb','Classifica')+t('hist','Storico')+'</div>';
+}
+function watchersHTML(){
+  if(!PEERS.length)return'';
+  return'<div class="watchers">'+PEERS.map(function(p){
+    return'<div class="wchip'+(p.isMe?' me':'')+'"><span class="dot on"></span>'+esc(p.name)+(p.isMe?' (tu)':'')+'</div>';
+  }).join('')+'</div>';
+}
+function gameHTML(){
+  if(!G)return'<div class="empty"><div class="ei">🎳</div><p>Caricamento della partita…</p></div>';
+  if(!MYNAME){
+    return'<div class="card join"><div class="join-t">Chi sei?</div><div class="join-s">Scrivi il tuo nome per unirti alla partita.<br>Gli altri vedranno che sei collegato.</div><input class="in" id="joinin" placeholder="Il tuo nome" maxlength="18" style="text-align:center"><div class="err" id="join-err" style="display:none"></div><button class="btn btn-p" id="joinbtn" style="width:100%;padding:.6rem">Entra</button></div>';
+  }
+  var h='<div class="sh"><span class="sh-t">'+(G.finished?'Partita conclusa':G.players.length?'Partita in corso':'Partita')+'</span><div style="display:flex;gap:5px"><button class="btn" id="bplayers">Giocatori</button><button class="btn btn-p" id="bnew">Nuova</button></div></div>';
+  if(!G.players.length)return h+'<div class="empty"><div class="ei">🎳</div><p>Aggiungi i giocatori<br>e inizia la prima partita!</p></div>';
+  if(G.finished){
+    var rk=G.players.slice().sort(function(a,b){return total(b.frames)-total(a.frames)});
+    var w=rk[0],c=PAL[w.colorIdx%6];
+    h+='<div class="end"><div class="et">🏆 '+esc(w.name)+' vince!</div><div class="es">Punteggio <strong style="color:'+c.c+'">'+total(w.frames)+'</strong></div><button class="btn btn-p" id="bnew2" style="padding:.5rem 1.3rem">Nuova partita</button></div>';
+  }else{
+    var ap=G.players[G.activePlayer],fi=G.activeFrame,bi=G.ballInFrame;
+    var max=availablePins(ap.frames,fi,bi),c2=PAL[ap.colorIdx%6];
+    var tb=ap.frames[9].balls;
+    var fresh=bi===0||(fi===9&&bi===1&&tb[0]===10)||(fi===9&&bi===2&&tb[0]===10&&tb[1]===10);
+    h+='<div class="ipad"><div class="iw">Tocca a <strong style="color:'+c2.c+'">'+esc(ap.name)+'</strong> — frame '+(fi+1)+', tiro '+(bi+1)+'</div><div class="pgrid">';
+    if(fresh){
+      h+='<button class="pb pX" style="grid-column:span 2" data-pin="10">Strike X</button>';
+      for(var i=9;i>=1;i--)h+='<button class="pb" data-pin="'+i+'">'+i+'</button>';
+    }else{
+      if(max>0)h+='<button class="pb pS" style="grid-column:span 2" data-pin="'+max+'">Spare /</button>';
+      for(var j=max-1;j>=1;j--)h+='<button class="pb" data-pin="'+j+'">'+j+'</button>';
+    }
+    h+='<button class="pb p0" data-pin="0">— 0</button></div>';
+    if(G.undo)h+='<div class="ub"><span class="ul">Tiro sbagliato?</span><button class="btn" id="bundo" style="font-size:.75rem;padding:.28rem .7rem">↩ Annulla</button></div>';
+    h+='</div>';
+  }
+  h+='<div class="pg">';
+  G.players.forEach(function(p,pi){
+    var c=PAL[p.colorIdx%6];
+    var ini=p.name.split(' ').map(function(w){return w[0]}).join('').slice(0,2).toUpperCase();
+    var act=!G.finished&&pi===G.activePlayer;
+    var sc=scores(p.frames);
+    h+='<div class="pc'+(act?' ac':'')+'"><div class="ph"><div class="av" style="background:'+c.bg+';color:'+c.c+'">'+esc(ini)+'</div><div style="flex:1"><div class="pn">'+esc(p.name)+(act?' ▶':'')+'</div><div class="pl">punteggio</div></div><div class="ps" style="color:'+c.c+'">'+total(p.frames)+'</div></div><div class="fr-row"><div class="fi">';
+    for(var f=0;f<10;f++){
+      var last=f===9;
+      h+='<div class="fr '+(last?'w3':'w2')+'"><div class="fn">'+(f+1)+'</div><div class="fb">';
+      if(!last){
+        var l0=label(p.frames,f,0),l1=label(p.frames,f,1);
+        if(l0==='X')h+='<span style="width:7px"></span><div class="'+blcls(l0)+'">X</div>';
+        else h+='<div class="'+blcls(l0)+'">'+l0+'</div><div class="'+blcls(l1)+'">'+l1+'</div>';
+      }else{
+        for(var b=0;b<3;b++){var lb=label(p.frames,9,b);h+='<div class="'+blcls(lb)+'" style="width:15px;height:15px;font-size:.55rem">'+lb+'</div>'}
+      }
+      h+='</div><div class="fs'+(sc[f]!==null?' done':'')+'">'+(sc[f]!==null?sc[f]:'')+'</div></div>';
+    }
+    h+='</div></div></div>';
+  });
+  return h+'</div>';
+}
+function lbHTML(){
+  var h='<div class="sh"><span class="sh-t">Classifica</span></div>';
+  if(!HIST.length)return h+'<div class="empty"><div class="ei">🏆</div><p>Nessuna partita conclusa.<br>La classifica si riempie da sola.</p></div>';
+  var by={};
+  HIST.forEach(function(e){
+    if(!by[e.name])by[e.name]={name:e.name,colorIdx:e.colorIdx||0,scores:[]};
+    by[e.name].scores.push(e.score);
+  });
+  var rk=Object.keys(by).map(function(k){
+    var v=by[k],s=v.scores;
+    return{name:v.name,colorIdx:v.colorIdx,best:Math.max.apply(null,s),
+      avg:Math.round(s.reduce(function(a,b){return a+b},0)/s.length),n:s.length};
+  }).sort(function(a,b){return b.best-a.best});
+  h+='<div class="list">';
+  rk.forEach(function(p,i){
+    var c=PAL[p.colorIdx%6];
+    var ini=p.name.split(' ').map(function(w){return w[0]}).join('').slice(0,2).toUpperCase();
+    var m=['🥇','🥈','🥉'][i]||(i+1);
+    h+='<div class="row"><div class="rank">'+m+'</div><div class="av" style="width:30px;height:30px;font-size:.74rem;background:'+c.bg+';color:'+c.c+'">'+esc(ini)+'</div><div style="flex:1"><div class="rname">'+esc(p.name)+'</div><div class="rsub">'+p.n+' partite · media '+p.avg+'</div></div><div class="rscore" style="color:'+c.c+'">'+p.best+'</div></div>';
+  });
+  return h+'</div>';
+}
+function histHTML(){
+  var h='<div class="sh"><span class="sh-t">Storico</span>'+(HIST.length?'<button class="btn btn-d" id="bclear">Cancella tutto</button>':'')+'</div>';
+  if(!HIST.length)return h+'<div class="empty"><div class="ei">📋</div><p>Nessuna partita registrata.</p></div>';
+  h+='<div class="list">';
+  HIST.slice().reverse().forEach(function(e){
+    var c=PAL[(e.colorIdx||0)%6];
+    h+='<div class="row"><div style="flex:1"><div class="rname">'+esc(e.name)+'</div><div class="rsub">'+esc(e.date)+'</div></div>'+(e.perfect?'<span class="chip">Perfect 300</span>':'')+'<div class="rscore" style="color:'+c.c+'">'+e.score+'</div></div>';
+  });
+  return h+'</div>';
+}
+function renderML(){
+  var el=document.getElementById('ml');
+  if(!el)return;
+  var ps=(G&&G.players)||[];
+  if(!ps.length){el.innerHTML='<div style="font-size:.8rem;color:var(--t2);padding:.2rem 0">Nessun giocatore</div>';return}
+  el.innerHTML=ps.map(function(p,i){
+    var c=PAL[p.colorIdx%6];
+    return'<div class="mr"><div class="av" style="width:26px;height:26px;font-size:.7rem;background:'+c.bg+';color:'+c.c+'">'+esc(p.name[0].toUpperCase())+'</div><span class="pn">'+esc(p.name)+'</span><button class="btn btn-d" data-rm="'+i+'" style="padding:.2rem .5rem;font-size:.7rem">✕</button></div>';
+  }).join('');
+  Array.prototype.forEach.call(el.querySelectorAll('[data-rm]'),function(b){
+    b.onclick=function(){removePlayer(+b.getAttribute('data-rm'))};
+  });
+}
+function wire(){
+  var app=document.getElementById('app');
+  Array.prototype.forEach.call(app.querySelectorAll('[data-tab]'),function(b){
+    b.onclick=function(){TAB=b.getAttribute('data-tab');render()};
+  });
+  Array.prototype.forEach.call(app.querySelectorAll('[data-pin]'),function(b){
+    b.onclick=function(){recordBall(+b.getAttribute('data-pin'))};
+  });
+  var g=function(id){return document.getElementById(id)};
+  if(g('bplayers'))g('bplayers').onclick=openModal;
+  if(g('bnew'))g('bnew').onclick=newGame;
+  if(g('bnew2'))g('bnew2').onclick=newGame;
+  if(g('bundo'))g('bundo').onclick=undoLast;
+  if(g('bclear'))g('bclear').onclick=clearHist;
+  if(g('joinbtn'))g('joinbtn').onclick=joinAs;
+  if(g('joinin')){
+    g('joinin').focus();
+    g('joinin').onkeydown=function(e){if(e.key==='Enter')joinAs()};
+    g('joinin').oninput=function(){var e=g('join-err');if(e)e.style.display='none'};
+  }
+}
+function openModal(){document.getElementById('modal').style.display='flex';renderML();setTimeout(function(){document.getElementById('pi').focus()},60)}
+function closeModal(){document.getElementById('modal').style.display='none';document.getElementById('pi').value='';document.getElementById('pi-err').style.display='none'}
+document.getElementById('mclose').onclick=closeModal;
+document.getElementById('madd').onclick=addPlayer;
+document.getElementById('pi').onkeydown=function(e){if(e.key==='Enter')addPlayer()};
+document.getElementById('pi').oninput=function(){document.getElementById('pi-err').style.display='none'};
+document.getElementById('modal').onclick=function(e){if(e.target===this)closeModal()};
+
+var tt;
+function showToast(m){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){e.classList.remove('show')},2500)}
+function setConn(on,txt){document.getElementById('cdot').className='dot'+(on?' on':'');document.getElementById('ctxt').textContent=txt}
+
+// -- local storage layer -----------------------------------
+var KEY='score_v1';
+function load(){
+  try{
+    var raw=localStorage.getItem(KEY);
+    if(raw){var o=JSON.parse(raw);if(o&&typeof o==='object')return o}
+  }catch(e){}
+  return null;
+}
+function persist(){
+  try{localStorage.setItem(KEY,JSON.stringify({game:G,hist:HIST}))}
+  catch(e){showToast('Salvataggio non riuscito: memoria piena')}
+}
+writeGame=function(g){G=g;persist();render();return Promise.resolve()};
+writeHist=function(entries){HIST=entries;persist();render();return Promise.resolve()};
+
+// -- init --------------------------------------------------
+DBREADY=true;
+var saved=load();
+G=(saved&&saved.game)||blankGame([]);
+if(!G.players)G.players=[];
+G.players.forEach(function(p){if(!p.frames)p.frames=emptyFrames()});
+HIST=(saved&&saved.hist)||[];
+try{MYNAME=localStorage.getItem('score_name')||null}catch(e){}
+setConn(true,'Su questo dispositivo');
+render();
+
+// -- ponte per il livello di sincronizzazione (vedi in fondo alla pagina) --
+window.SCORE={
+  get G(){return G}, get HIST(){return HIST},
+  writeGame:function(g){return writeGame(g)},
+  writeHist:function(h){return writeHist(h)},
+  apply:function(game,hist){
+    if(game){
+      G=game;
+      if(!G.players)G.players=[];
+      G.players.forEach(function(p){if(!p.frames)p.frames=emptyFrames()});
+    }
+    if(hist)HIST=hist;
+    persist();render();
+  }
+};
+// le chiamate interne passano dal ponte, così la sincronizzazione le intercetta
+var _wg=writeGame,_wh=writeHist;
+writeGame=function(g){return window.SCORE.writeGame(g)};
+writeHist=function(h){return window.SCORE.writeHist(h)};
+window.SCORE.writeGame=function(g){return _wg(g)};
+window.SCORE.writeHist=function(h){return _wh(h)};
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js').catch(function(){});
+  });
+}
+</script>
+<script type="module">
+// ── sincronizzazione fra dispositivi (facoltativa) ──────────────────────
+// Attiva solo se firebase-config.js contiene una configurazione.
+// Senza, l'app resta locale e questo blocco non fa nulla.
+
+const cfg = window.FIREBASE_CONFIG;
+const bar = document.getElementById('syncbar');
+
+function showBar(html){ bar.innerHTML = '<div class="sb">' + html + '</div>'; bar.style.display = ''; }
+
+// Codice partita: dall'indirizzo (#stanza) o generato e ricordato.
+function roomId(){
+  const m = location.hash.match(/^#([A-Za-z0-9_-]{4,32})$/);
+  if (m) { try { localStorage.setItem('score_room', m[1]); } catch(e){} return m[1]; }
+  let r = null;
+  try { r = localStorage.getItem('score_room'); } catch(e){}
+  if (!r) {
+    r = Math.random().toString(36).slice(2, 8).toUpperCase();
+    try { localStorage.setItem('score_room', r); } catch(e){}
+  }
+  return r;
+}
+
+if (cfg && cfg.projectId) {
+  const ROOM = roomId();
+  const link = location.origin + location.pathname + '#' + ROOM;
+  showBar('Partita <b>' + ROOM + '</b><button class="btn" id="sbcopy">Copia invito</button>');
+  document.getElementById('sbcopy').onclick = async () => {
+    const b = document.getElementById('sbcopy');
+    try { await navigator.clipboard.writeText(link); b.textContent = 'Copiato'; }
+    catch(e) { prompt('Copia questo link:', link); return; }
+    setTimeout(() => { b.textContent = 'Copia invito'; }, 1800);
+  };
+
+  try {
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+    const { getFirestore, doc, onSnapshot, setDoc } =
+      await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+
+    const db  = getFirestore(initializeApp(cfg));
+    const ref = doc(db, 'rooms', ROOM);
+
+    // Firestore rifiuta gli array annidati e la partita ne ha tre livelli
+    // (giocatori -> frame -> tiri), quindi lo stato viaggia come testo JSON.
+    let applying = false;   // sto scrivendo io? allora non rimbalzare
+    let lastSent = null;
+
+    function push(){
+      const payload = JSON.stringify({ game: window.SCORE.G, hist: window.SCORE.HIST });
+      if (payload === lastSent) return;
+      lastSent = payload;
+      setDoc(ref, { data: payload, updatedAt: Date.now() })
+        .catch(() => showBar('Partita <b>' + ROOM + '</b> · salvataggio non riuscito'));
+    }
+
+    // Le due cuciture che il livello locale già usa: ora salvano anche online.
+    const localGame = window.SCORE.writeGame;
+    const localHist = window.SCORE.writeHist;
+    window.SCORE.writeGame = g => { localGame(g); if (!applying) push(); return Promise.resolve(); };
+    window.SCORE.writeHist = h => { localHist(h); if (!applying) push(); return Promise.resolve(); };
+
+    onSnapshot(ref, snap => {
+      if (!snap.exists()) { push(); return; }          // prima volta: semina
+      const raw = snap.data().data;
+      if (typeof raw !== 'string' || raw === lastSent) return;
+      let incoming;
+      try { incoming = JSON.parse(raw); } catch(e) { return; }
+      lastSent = raw;
+      applying = true;
+      try { window.SCORE.apply(incoming.game, incoming.hist); } finally { applying = false; }
+    }, () => showBar('Partita <b>' + ROOM + '</b> · sincronizzazione interrotta'));
+
+  } catch (e) {
+    showBar('Partita <b>' + ROOM + '</b> · offline, i punteggi restano su questo telefono');
+  }
+}
+</script>
+
+</body>
+</html>
