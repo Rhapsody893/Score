@@ -110,6 +110,7 @@ body{
 input,textarea{-webkit-user-select:text;user-select:text}
 /* room for the tab bar */
 body{padding-bottom:calc(5.25rem + env(safe-area-inset-bottom))}
+body.home{padding-bottom:calc(2rem + env(safe-area-inset-bottom))}
 /* every scroller keeps momentum and doesn't drag the page */
 .fr-row,.ml{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 
@@ -183,6 +184,46 @@ body{padding-bottom:calc(5.25rem + env(safe-area-inset-bottom))}
 .hdet{margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--bo)}
 .chev{color:var(--t2);font-size:.7rem;transition:transform .2s;flex-shrink:0}
 .chev.open{transform:rotate(90deg)}
+.hero{padding:.25rem 0 1.25rem}
+.hi{font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
+.who{display:flex;align-items:center;gap:8px;margin-top:.3rem}
+.whochip{display:inline-flex;align-items:center;gap:6px;background:var(--su);border:1px solid var(--bo);
+  border-radius:20px;padding:.3rem .7rem;font-size:.74rem;color:var(--t2);font-family:inherit;cursor:pointer}
+.whochip:active{transform:scale(.96)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.1rem}
+.stat{background:var(--su);border:1px solid var(--bo);border-radius:var(--r);padding:.7rem .85rem}
+.stat .v{font-size:1.5rem;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.stat .k{font-size:.68rem;color:var(--t2);margin-top:.15rem}
+.acts{display:flex;flex-direction:column;gap:8px;margin-bottom:1.1rem}
+.act{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font-family:inherit;
+  background:var(--su);border:1px solid var(--bo);border-radius:var(--r);
+  padding:.85rem .9rem;color:var(--tx);cursor:pointer;min-height:56px;
+  transition:transform .08s,border-color .15s}
+.act:active{transform:scale(.985)}
+.act .t{font-size:.92rem;font-weight:600}
+.act .d{font-size:.72rem;color:var(--t2);margin-top:.1rem}
+.act .ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.act .ic svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.act .go{margin-left:auto;color:var(--t2);font-size:.8rem}
+.act.primary{background:var(--ac);border-color:var(--ac)}
+.act.primary .t{color:#fff}
+.act.primary .d{color:rgba(255,255,255,.72)}
+.act.primary .ic{background:rgba(255,255,255,.16);color:#fff}
+.act.primary .go{color:rgba(255,255,255,.7)}
+.act.resume{border-color:rgba(52,211,153,.35)}
+.act.resume .ic{background:rgba(52,211,153,.14);color:var(--sp)}
+.act .ic.n{background:var(--s2);color:var(--t2)}
+.minor{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mi{display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--su);
+  border:1px solid var(--bo);border-radius:var(--r);padding:.75rem .35rem;color:var(--t2);
+  font-family:inherit;font-size:.7rem;font-weight:500;cursor:pointer;min-height:64px;justify-content:center}
+.mi:active{transform:scale(.96)}
+.mi svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.back{display:flex;align-items:center;justify-content:center;width:34px;height:34px;flex-shrink:0;
+  border-radius:9px;border:1px solid var(--bo);background:var(--su);color:var(--tx);cursor:pointer;font-family:inherit}
+.back:active{transform:scale(.93)}
+.back svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tabbar.off{display:none}
 .toast{position:fixed;bottom:calc(5.5rem + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(70px);background:var(--s2);border:1px solid var(--bo);border-radius:10px;padding:.55rem 1rem;font-size:.8rem;font-weight:500;transition:transform .22s;z-index:200;white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .sb{background:var(--su);border:1px solid var(--bo);border-radius:var(--r);padding:.6rem .8rem;display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--t2)}
@@ -234,6 +275,7 @@ var db=null,room=null;
 var G=null;                 // game doc body, or null until first snapshot
 var HIST=[];                // history entries
 var TAB='game';
+var NAV='home';   // 'home' oppure la sezione aperta
 var MYNAME=null;
 var PEERS=[];               // [{peer,name,isMe}]
 var DBREADY=false;
@@ -421,19 +463,49 @@ async function clearHist(){
   var ok=await ask('Cancellare lo storico','Tutte le partite registrate verranno eliminate.','Cancella',true);
   if(ok)writeHist([]);
 }
+var JOIN_W=null;
+function renderJoinWeights(){
+  var g=document.getElementById('jwgrid');
+  if(!g)return;
+  g.innerHTML=[8,9,10,11,12,13,14,15,16].map(function(w){
+    return'<button class="wb" data-jw="'+w+'" aria-pressed="'+(JOIN_W===w)+'">'+w+'</button>';
+  }).join('');
+  Array.prototype.forEach.call(g.querySelectorAll('[data-jw]'),function(b){
+    b.onclick=function(){
+      JOIN_W=+b.getAttribute('data-jw');tap();
+      var e=document.getElementById('join-err');if(e)e.style.display='none';
+      renderJoinWeights();
+    };
+  });
+}
 function joinAs(){
   var el=document.getElementById('joinin'),err=document.getElementById('join-err');
   var n=el.value.trim();
   if(!n){err.textContent='Scrivi il tuo nome';err.style.display='';return}
+  if(!JOIN_W){err.textContent='Scegli il peso della palla';err.style.display='';return}
   MYNAME=n;
   try{localStorage.setItem('score_name',n)}catch(e){}
+  NAV='home';
+  var g=G?JSON.parse(JSON.stringify(G)):blankGame([]);
+  if(!g.players)g.players=[];
+  var mine=null;
+  g.players.forEach(function(p){if(p.name.toLowerCase()===n.toLowerCase())mine=p});
+  if(mine)mine.weight=JOIN_W;
+  else if(g.players.length<6)
+    g.players.push({name:n,weight:JOIN_W,colorIdx:g.players.length,frames:emptyFrames()});
+  writeGame(g);
   render();
 }
 
 // ── render ────────────────────────────────────────────────
 function render(){
   var app=document.getElementById('app');
-  app.innerHTML=(TAB==='game'?gameHTML():TAB==='lb'?lbHTML():histHTML());
+  var onHome=!MYNAME||NAV==='home';
+  document.body.classList.toggle('home',onHome);
+  document.getElementById('tabbar').classList.toggle('off',onHome);
+  var sb=document.getElementById('syncbar');
+  if(sb&&sb.dataset&&sb.dataset.ready)sb.style.display=onHome?'':'none';
+  app.innerHTML=(!MYNAME||NAV==='home')?gameHTML():(TAB==='game'?gameHTML():TAB==='lb'?lbHTML():histHTML());
   wire();
 }
 function watchersHTML(){
@@ -445,9 +517,16 @@ function watchersHTML(){
 function gameHTML(){
   if(!G)return'<div class="empty"><div class="ei">🎳</div><p>Caricamento della partita…</p></div>';
   if(!MYNAME){
-    return'<div class="card join"><div class="join-t">Chi sei?</div><div class="join-s">Scrivi il tuo nome per unirti alla partita.<br>Gli altri vedranno che sei collegato.</div><input class="in" id="joinin" placeholder="Il tuo nome" maxlength="18" style="text-align:center"><div class="err" id="join-err" style="display:none"></div><button class="btn btn-p" id="joinbtn" style="width:100%;padding:.6rem">Entra</button></div>';
+    return'<div class="card join"><div class="join-t">Chi sei?</div>'+
+      '<div class="join-s">Il tuo nome e la palla che usi.<br>Entri subito in partita come giocatore.</div>'+
+      '<input class="in" id="joinin" placeholder="Il tuo nome" maxlength="18" style="text-align:center">'+
+      '<div class="wlabel" style="text-align:center">Peso della palla</div>'+
+      '<div class="wgrid" id="jwgrid"></div>'+
+      '<div class="err" id="join-err" style="display:none"></div>'+
+      '<button class="btn btn-p" id="joinbtn" style="width:100%;padding:.65rem">Entra</button></div>';
   }
-  var h='<div class="sh"><span class="sh-t">'+(G.finished?'Partita conclusa':G.players.length?'Partita in corso':'Partita')+'</span><div style="display:flex;gap:5px"><button class="btn" id="bplayers">Giocatori</button><button class="btn btn-p" id="bnew">Nuova</button></div></div>';
+  if(NAV==='home')return homeHTML();
+  var h='<div class="sh">'+backBtn()+'<span class="sh-t" style="flex:1">'+(G.finished?'Partita conclusa':G.players.length?'Partita in corso':'Partita')+'</span><div style="display:flex;gap:5px"><button class="btn" id="bplayers">Giocatori</button><button class="btn btn-p" id="bnew">Nuova</button></div></div>';
   if(!G.players.length)return h+'<div class="empty"><div class="ei">🎳</div><p>Aggiungi i giocatori<br>e inizia la prima partita!</p></div>';
   if(G.finished){
     var rk=G.players.slice().sort(function(a,b){return total(b.frames)-total(a.frames)});
@@ -484,6 +563,59 @@ function gameHTML(){
   });
   return h+'</div>';
 }
+function myStats(){
+  var mine=HIST.filter(function(e){return e.name===MYNAME});
+  if(!mine.length)return{avg:null,best:null,n:0};
+  var sc=mine.map(function(e){return e.score});
+  return{avg:Math.round(sc.reduce(function(a,b){return a+b},0)/sc.length),
+         best:Math.max.apply(null,sc),n:sc.length};
+}
+function myWeight(){
+  var me=(G&&G.players||[]).filter(function(p){return p.name===MYNAME})[0];
+  return me&&me.weight||null;
+}
+function ICON(d){return'<svg viewBox="0 0 24 24">'+d+'</svg>'}
+var I_PLAY='<path d="M7 5l11 7-11 7z"/>',
+    I_PLUS='<path d="M12 5v14"/><path d="M5 12h14"/>',
+    I_BARS='<path d="M6 21V9"/><path d="M12 21V4"/><path d="M18 21v-7"/>',
+    I_CLOCK='<path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8"/>',
+    I_USERS='<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M16 5.5a3.2 3.2 0 0 1 0 6"/><path d="M18 15c2 .6 3 2.2 3 5"/>',
+    I_BACK='<path d="M15 6l-6 6 6 6"/>';
+
+function homeHTML(){
+  var st=myStats(),w=myWeight();
+  var players=(G&&G.players)||[];
+  var started=G&&!G.finished&&(G.activeFrame>0||G.ballInFrame>0);
+  var h='<div class="hero"><div class="hi">Ciao '+esc(MYNAME)+'</div>'+
+    '<div class="who"><button class="whochip" id="hedit">'+
+    (w?w+' lb':'peso non impostato')+' \u00b7 modifica</button></div></div>';
+
+  h+='<div class="stats">'+
+     '<div class="stat"><div class="v" style="color:var(--ac2)">'+(st.avg!==null?st.avg:'\u2014')+'</div><div class="k">media su '+st.n+' partite</div></div>'+
+     '<div class="stat"><div class="v" style="color:var(--st)">'+(st.best!==null?st.best:'\u2014')+'</div><div class="k">record personale</div></div>'+
+     '</div>';
+
+  h+='<div class="acts">';
+  if(started){
+    var turn=G.players[G.activePlayer];
+    h+='<button class="act resume" data-go="game"><span class="ic">'+ICON(I_PLAY)+'</span>'+
+       '<span><span class="t">Riprendi partita</span><span class="d">Frame '+(G.activeFrame+1)+' \u00b7 tocca a '+esc(turn.name)+'</span></span>'+
+       '<span class="go">\u203a</span></button>';
+  }
+  h+='<button class="act primary" id="hnew"><span class="ic">'+ICON(I_PLUS)+'</span>'+
+     '<span><span class="t">Nuova partita</span><span class="d">'+
+     (players.length?players.length+(players.length===1?' giocatore':' giocatori'):'Aggiungi i giocatori')+
+     '</span></span><span class="go">\u203a</span></button>';
+  h+='</div>';
+
+  h+='<div class="minor">'+
+     '<button class="mi" data-go="lb">'+ICON(I_BARS)+'<span>Classifica</span></button>'+
+     '<button class="mi" data-go="hist">'+ICON(I_CLOCK)+'<span>Storico</span></button>'+
+     '<button class="mi" id="hplayers">'+ICON(I_USERS)+'<span>Giocatori</span></button>'+
+     '</div>';
+  return h;
+}
+function backBtn(){return'<button class="back" id="bback" aria-label="Torna alla home">'+ICON(I_BACK)+'</button>'}
 function framesHTML(frames,compact){
   var sc=scores(frames),h='<div class="fr-row"><div class="fi">';
   for(var f=0;f<10;f++){
@@ -502,7 +634,7 @@ function framesHTML(frames,compact){
   return h+'</div></div>';
 }
 function lbHTML(){
-  var h='<div class="sh"><span class="sh-t">Classifica</span></div>';
+  var h='<div class="sh">'+backBtn()+'<span class="sh-t" style="flex:1">Classifica</span></div>';
   if(!HIST.length)return h+'<div class="empty"><div class="ei">\ud83c\udfc6</div><p>Nessuna partita conclusa.<br>La classifica si riempie da sola.</p></div>';
   var by={};
   HIST.forEach(function(e){
@@ -538,7 +670,7 @@ function lbHTML(){
 }
 var OPEN_H=null;
 function histHTML(){
-  var h='<div class="sh"><span class="sh-t">Storico</span>'+(HIST.length?'<button class="btn btn-d" id="bclear">Cancella tutto</button>':'')+'</div>';
+  var h='<div class="sh">'+backBtn()+'<span class="sh-t" style="flex:1">Storico</span>'+(HIST.length?'<button class="btn btn-d" id="bclear">Cancella tutto</button>':'')+'</div>';
   if(!HIST.length)return h+'<div class="empty"><div class="ei">\ud83d\udccb</div><p>Nessuna partita registrata.</p></div>';
   h+='<div class="list">';
   var rows=HIST.map(function(e,i){return{e:e,i:i}}).reverse();
@@ -591,6 +723,14 @@ function wire(){
     };
   });
   if(g('joinbtn'))g('joinbtn').onclick=joinAs;
+  if(g('jwgrid'))renderJoinWeights();
+  if(g('bback'))g('bback').onclick=function(){NAV='home';tap();render();window.scrollTo(0,0)};
+  if(g('hedit'))g('hedit').onclick=function(){tap();openModal()};
+  if(g('hplayers'))g('hplayers').onclick=function(){tap();openModal()};
+  if(g('hnew'))g('hnew').onclick=function(){tap();goto('game');newGame()};
+  Array.prototype.forEach.call(app.querySelectorAll('[data-go]'),function(b){
+    b.onclick=function(){tap();goto(b.getAttribute('data-go'))};
+  });
   if(g('joinin')){
     g('joinin').focus();
     g('joinin').onkeydown=function(e){if(e.key==='Enter')joinAs()};
@@ -608,19 +748,23 @@ document.getElementById('modal').onclick=function(e){if(e.target===this)closeMod
 // -- tocco: micro-vibrazione dove il sistema la supporta ----
 function tap(ms){try{if(navigator.vibrate)navigator.vibrate(ms||8)}catch(e){}}
 
+function goto(t){
+  TAB=t;NAV=t;
+  var bar=document.getElementById('tabbar');
+  Array.prototype.forEach.call(bar.querySelectorAll('[data-tab]'),function(x){
+    x.setAttribute('aria-selected',x.getAttribute('data-tab')===t?'true':'false');
+  });
+  render();window.scrollTo(0,0);
+}
+
 // -- barra delle schede -------------------------------------
 (function(){
   var bar=document.getElementById('tabbar');
   Array.prototype.forEach.call(bar.querySelectorAll('[data-tab]'),function(b){
     b.addEventListener('click',function(){
       var t=b.getAttribute('data-tab');
-      if(t===TAB)return;
-      TAB=t;tap();
-      Array.prototype.forEach.call(bar.querySelectorAll('[data-tab]'),function(x){
-        x.setAttribute('aria-selected',x.getAttribute('data-tab')===t?'true':'false');
-      });
-      render();
-      window.scrollTo(0,0);
+      if(t===TAB&&NAV===t)return;
+      tap();goto(t);
     });
   });
 })();
@@ -724,7 +868,12 @@ if('serviceWorker' in navigator){
 const cfg = window.FIREBASE_CONFIG;
 const bar = document.getElementById('syncbar');
 
-function showBar(html){ bar.innerHTML = '<div class="sb">' + html + '</div>'; bar.style.display = ''; }
+function showBar(html){
+  bar.innerHTML = '<div class="sb">' + html + '</div>';
+  bar.dataset.ready = '1';
+  // la barra vive sulla home; nelle sezioni resta nascosta
+  bar.style.display = document.body.classList.contains('home') ? '' : 'none';
+}
 
 // Codice partita: dall'indirizzo (#stanza) o generato e ricordato.
 function roomId(){
