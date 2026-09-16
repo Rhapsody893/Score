@@ -109,8 +109,7 @@ body{
 }
 input,textarea{-webkit-user-select:text;user-select:text}
 /* room for the tab bar */
-body{padding-bottom:calc(5.25rem + env(safe-area-inset-bottom))}
-body.home{padding-bottom:calc(2rem + env(safe-area-inset-bottom))}
+body{padding-bottom:max(6.5rem,calc(5.4rem + env(safe-area-inset-bottom)))}
 /* every scroller keeps momentum and doesn't drag the page */
 .fr-row,.ml{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 
@@ -118,7 +117,7 @@ body.home{padding-bottom:calc(2rem + env(safe-area-inset-bottom))}
 .tabbar{
   position:fixed;left:0;right:0;bottom:0;z-index:50;
   display:flex;
-  padding:.3rem calc(.5rem + env(safe-area-inset-left)) calc(.3rem + env(safe-area-inset-bottom)) calc(.5rem + env(safe-area-inset-right));
+  padding:.3rem calc(.5rem + env(safe-area-inset-left)) max(1.5rem,calc(.45rem + env(safe-area-inset-bottom))) calc(.5rem + env(safe-area-inset-right));
   background:rgba(18,18,24,.82);
   -webkit-backdrop-filter:saturate(180%) blur(20px);
   backdrop-filter:saturate(180%) blur(20px);
@@ -223,8 +222,7 @@ body.home{padding-bottom:calc(2rem + env(safe-area-inset-bottom))}
   border-radius:9px;border:1px solid var(--bo);background:var(--su);color:var(--tx);cursor:pointer;font-family:inherit}
 .back:active{transform:scale(.93)}
 .back svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.tabbar.off{display:none}
-.toast{position:fixed;bottom:calc(5.5rem + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(70px);background:var(--s2);border:1px solid var(--bo);border-radius:10px;padding:.55rem 1rem;font-size:.8rem;font-weight:500;transition:transform .22s;z-index:200;white-space:nowrap}
+.toast{position:fixed;bottom:max(6.75rem,calc(5.6rem + env(safe-area-inset-bottom)));left:50%;transform:translateX(-50%) translateY(70px);background:var(--s2);border:1px solid var(--bo);border-radius:10px;padding:.55rem 1rem;font-size:.8rem;font-weight:500;transition:transform .22s;z-index:200;white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .sb{background:var(--su);border:1px solid var(--bo);border-radius:var(--r);padding:.6rem .8rem;display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--t2)}
 .sb b{color:var(--tx);font-weight:600;font-family:ui-monospace,monospace;letter-spacing:.04em}
@@ -264,7 +262,7 @@ body.home{padding-bottom:calc(2rem + env(safe-area-inset-bottom))}
   <div class="ma"><button class="btn" id="mclose">Chiudi</button><button class="btn btn-p" id="madd">Aggiungi</button></div>
 </div></div>
 
-<nav class="tabbar" id="tabbar" role="tablist"><button class="tb" role="tab" data-tab="game" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M4 7h16v10H4z"/><path d="M4 11h16"/><path d="M9 11v6"/><path d="M15 11v6"/></svg><span>Partita</span></button><button class="tb" role="tab" data-tab="lb" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M6 21V9"/><path d="M12 21V4"/><path d="M18 21v-7"/></svg><span>Classifica</span></button><button class="tb" role="tab" data-tab="hist" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8"/></svg><span>Storico</span></button></nav>
+<nav class="tabbar" id="tabbar" role="tablist"><button class="tb" role="tab" data-tab="home" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/></svg><span>Home</span></button><button class="tb" role="tab" data-tab="lb" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M6 21V9"/><path d="M12 21V4"/><path d="M18 21v-7"/></svg><span>Classifica</span></button><button class="tb" role="tab" data-tab="hist" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8"/></svg><span>Storico</span></button></nav>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -502,10 +500,11 @@ function render(){
   var app=document.getElementById('app');
   var onHome=!MYNAME||NAV==='home';
   document.body.classList.toggle('home',onHome);
-  document.getElementById('tabbar').classList.toggle('off',onHome);
+  // la barra resta sempre visibile: la prima scheda riporta alla home
+  document.getElementById('tabbar').style.display=MYNAME?'':'none';
   var sb=document.getElementById('syncbar');
   if(sb&&sb.dataset&&sb.dataset.ready)sb.style.display=onHome?'':'none';
-  app.innerHTML=(!MYNAME||NAV==='home')?gameHTML():(TAB==='game'?gameHTML():TAB==='lb'?lbHTML():histHTML());
+  app.innerHTML=(!MYNAME||NAV==='home'||NAV==='game')?gameHTML():(NAV==='lb'?lbHTML():histHTML());
   wire();
 }
 function watchersHTML(){
@@ -634,7 +633,7 @@ function framesHTML(frames,compact){
   return h+'</div></div>';
 }
 function lbHTML(){
-  var h='<div class="sh">'+backBtn()+'<span class="sh-t" style="flex:1">Classifica</span></div>';
+  var h='<div class="sh"><span class="sh-t">Classifica</span></div>';
   if(!HIST.length)return h+'<div class="empty"><div class="ei">\ud83c\udfc6</div><p>Nessuna partita conclusa.<br>La classifica si riempie da sola.</p></div>';
   var by={};
   HIST.forEach(function(e){
@@ -670,7 +669,7 @@ function lbHTML(){
 }
 var OPEN_H=null;
 function histHTML(){
-  var h='<div class="sh">'+backBtn()+'<span class="sh-t" style="flex:1">Storico</span>'+(HIST.length?'<button class="btn btn-d" id="bclear">Cancella tutto</button>':'')+'</div>';
+  var h='<div class="sh"><span class="sh-t" style="flex:1">Storico</span>'+(HIST.length?'<button class="btn btn-d" id="bclear">Cancella tutto</button>':'')+'</div>';
   if(!HIST.length)return h+'<div class="empty"><div class="ei">\ud83d\udccb</div><p>Nessuna partita registrata.</p></div>';
   h+='<div class="list">';
   var rows=HIST.map(function(e,i){return{e:e,i:i}}).reverse();
@@ -749,10 +748,13 @@ document.getElementById('modal').onclick=function(e){if(e.target===this)closeMod
 function tap(ms){try{if(navigator.vibrate)navigator.vibrate(ms||8)}catch(e){}}
 
 function goto(t){
-  TAB=t;NAV=t;
+  NAV=t;
+  if(t!=='home')TAB=t;
+  // la partita si raggiunge dalla home, quindi resta accesa la sua scheda
+  var lit=(t==='game')?'home':t;
   var bar=document.getElementById('tabbar');
   Array.prototype.forEach.call(bar.querySelectorAll('[data-tab]'),function(x){
-    x.setAttribute('aria-selected',x.getAttribute('data-tab')===t?'true':'false');
+    x.setAttribute('aria-selected',x.getAttribute('data-tab')===lit?'true':'false');
   });
   render();window.scrollTo(0,0);
 }
@@ -763,7 +765,7 @@ function goto(t){
   Array.prototype.forEach.call(bar.querySelectorAll('[data-tab]'),function(b){
     b.addEventListener('click',function(){
       var t=b.getAttribute('data-tab');
-      if(t===TAB&&NAV===t)return;
+      if(NAV===t)return;
       tap();goto(t);
     });
   });
