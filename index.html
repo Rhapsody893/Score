@@ -222,6 +222,35 @@ body{padding-bottom:max(6.5rem,calc(5.4rem + env(safe-area-inset-bottom)))}
   border-radius:9px;border:1px solid var(--bo);background:var(--su);color:var(--tx);cursor:pointer;font-family:inherit}
 .back:active{transform:scale(.93)}
 .back svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tb{position:relative}
+.badge{position:absolute;top:.15rem;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;
+  border-radius:8px;background:var(--re);color:#fff;font-size:.6rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;line-height:1}
+.chat{display:flex;flex-direction:column;gap:8px;padding-bottom:.5rem}
+.msg{max-width:82%;padding:.5rem .7rem;border-radius:14px;font-size:.86rem;line-height:1.4;
+  word-break:break-word;white-space:pre-wrap}
+.msg.them{align-self:flex-start;background:var(--su);border:1px solid var(--bo);border-bottom-left-radius:5px}
+.msg.me{align-self:flex-end;background:var(--ac);color:#fff;border-bottom-right-radius:5px}
+.msg .who{font-size:.68rem;font-weight:700;margin-bottom:.15rem}
+.msg .at{font-size:.62rem;opacity:.6;margin-top:.2rem;text-align:right}
+.daysep{align-self:center;font-size:.66rem;color:var(--t2);padding:.15rem .6rem;
+  background:var(--su);border:1px solid var(--bo);border-radius:20px;margin:.35rem 0}
+.composer{position:fixed;left:0;right:0;z-index:49;
+  bottom:max(5.6rem,calc(4.5rem + env(safe-area-inset-bottom)));
+  display:flex;gap:6px;align-items:flex-end;
+  padding:.5rem calc(.75rem + env(safe-area-inset-left)) .5rem calc(.75rem + env(safe-area-inset-right));
+  background:rgba(18,18,24,.92);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+  border-top:1px solid var(--bo)}
+.composer textarea{flex:1;resize:none;background:var(--s2);border:1px solid var(--bo);border-radius:18px;
+  padding:.55rem .8rem;color:var(--tx);font-size:.88rem;font-family:inherit;outline:none;
+  max-height:100px;min-height:38px;line-height:1.35}
+.composer textarea:focus{border-color:var(--ac)}
+.send{width:38px;height:38px;flex-shrink:0;border-radius:50%;border:none;background:var(--ac);
+  color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.send:disabled{opacity:.35}
+.send:active{transform:scale(.92)}
+.send svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+body.chatting{padding-bottom:max(10rem,calc(8.5rem + env(safe-area-inset-bottom)))}
 .toast{position:fixed;bottom:max(6.75rem,calc(5.6rem + env(safe-area-inset-bottom)));left:50%;transform:translateX(-50%) translateY(70px);background:var(--s2);border:1px solid var(--bo);border-radius:10px;padding:.55rem 1rem;font-size:.8rem;font-weight:500;transition:transform .22s;z-index:200;white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .sb{background:var(--su);border:1px solid var(--bo);border-radius:var(--r);padding:.6rem .8rem;display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--t2)}
@@ -262,7 +291,7 @@ body{padding-bottom:max(6.5rem,calc(5.4rem + env(safe-area-inset-bottom)))}
   <div class="ma"><button class="btn" id="mclose">Chiudi</button><button class="btn btn-p" id="madd">Aggiungi</button></div>
 </div></div>
 
-<nav class="tabbar" id="tabbar" role="tablist"><button class="tb" role="tab" data-tab="home" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/></svg><span>Home</span></button><button class="tb" role="tab" data-tab="lb" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M6 21V9"/><path d="M12 21V4"/><path d="M18 21v-7"/></svg><span>Classifica</span></button><button class="tb" role="tab" data-tab="hist" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8"/></svg><span>Storico</span></button></nav>
+<nav class="tabbar" id="tabbar" role="tablist"><button class="tb" role="tab" data-tab="home" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/></svg><span>Home</span></button><button class="tb" role="tab" data-tab="lb" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M6 21V9"/><path d="M12 21V4"/><path d="M18 21v-7"/></svg><span>Classifica</span></button><button class="tb" role="tab" data-tab="chat" id="tabchat" style="display:none"><svg viewBox="0 0 24 24"><path d="M20 12a7 7 0 0 1-9.9 6.4L5 20l1.6-4.5A7 7 0 1 1 20 12z"/></svg><span>Chat</span></button><button class="tb" role="tab" data-tab="hist" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8"/></svg><span>Storico</span></button></nav>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -301,10 +330,12 @@ function tenthDone(b){
   if(b[0]===10||b[0]+b[1]===10)return b.length>=3;
   return true;
 }
-function nextDel(f,fi,off){
+// skip = quanti tiri del frame corrente ignorare:
+// 1 dopo uno strike, 2 dopo uno spare (i suoi due tiri non sono il bonus)
+function nextDel(f,fi,off,skip){
   var c=0;
   for(var i=fi;i<10;i++){
-    var s=(i===fi)?1:0;
+    var s=(i===fi)?skip:0;
     for(var j=s;j<f[i].balls.length;j++){c++;if(c===off)return f[i].balls[j]}
   }
   return null;
@@ -316,11 +347,11 @@ function scores(f){
     if(!b.length)continue;
     if(i<9){
       if(b[0]===10){
-        var a=nextDel(f,i,1),c=nextDel(f,i,2);
+        var a=nextDel(f,i,1,1),c=nextDel(f,i,2,1);
         if(a===null||c===null)continue;
         t+=10+a+c;out[i]=t;
       }else if(b.length>=2&&b[0]+b[1]===10){
-        var d=nextDel(f,i,1);if(d===null)continue;
+        var d=nextDel(f,i,1,2);if(d===null)continue;
         t+=10+d;out[i]=t;
       }else if(b.length>=2){t+=b[0]+b[1];out[i]=t}
     }else{
@@ -504,7 +535,11 @@ function render(){
   document.getElementById('tabbar').style.display=MYNAME?'':'none';
   var sb=document.getElementById('syncbar');
   if(sb&&sb.dataset&&sb.dataset.ready)sb.style.display=onHome?'':'none';
-  app.innerHTML=(!MYNAME||NAV==='home'||NAV==='game')?gameHTML():(NAV==='lb'?lbHTML():histHTML());
+  document.body.classList.toggle('chatting',NAV==='chat');
+  if(NAV==='chat')markSeen();
+  app.innerHTML=(!MYNAME||NAV==='home'||NAV==='game')?gameHTML():
+    (NAV==='lb'?lbHTML():NAV==='chat'?chatHTML():histHTML());
+  paintBadge();
   wire();
 }
 function watchersHTML(){
@@ -561,6 +596,63 @@ function gameHTML(){
     h+='</div>';
   });
   return h+'</div>';
+}
+var CHAT=[];          // messaggi, dal piu vecchio al piu recente
+var CHAT_ON=false;    // vero solo se la sincronizzazione e attiva
+var CHAT_SEND=null;   // funzione fornita dal livello di sincronizzazione
+var CHAT_SEEN=0;
+try{CHAT_SEEN=+(localStorage.getItem('score_seen')||0)}catch(e){}
+
+function unread(){
+  if(!CHAT_ON)return 0;
+  var n=0;
+  CHAT.forEach(function(m){if(m.at>CHAT_SEEN&&m.name!==MYNAME)n++});
+  return n;
+}
+function markSeen(){
+  var last=CHAT.length?CHAT[CHAT.length-1].at:0;
+  if(last>CHAT_SEEN){CHAT_SEEN=last;try{localStorage.setItem('score_seen',String(last))}catch(e){}}
+}
+function paintBadge(){
+  var t=document.getElementById('tabchat');
+  if(!t)return;
+  t.style.display=CHAT_ON?'':'none';
+  var b=t.querySelector('.badge');
+  var n=(NAV==='chat')?0:unread();
+  if(n>0){
+    if(!b){b=document.createElement('span');b.className='badge';t.appendChild(b)}
+    b.textContent=n>9?'9+':String(n);
+  }else if(b)b.remove();
+}
+function hhmm(ts){
+  var d=new Date(ts);
+  return('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+}
+function dayOf(ts){return new Date(ts).toLocaleDateString('it-IT')}
+
+function chatHTML(){
+  var h='<div class="sh"><span class="sh-t">Chat</span></div>';
+  if(!CHAT.length)
+    h+='<div class="empty"><div class="ei">\ud83d\udcac</div><p>Nessun messaggio.<br>Scrivi qualcosa ai tuoi compagni.</p></div>';
+  else{
+    h+='<div class="chat">';
+    var prevDay=null;
+    CHAT.forEach(function(m){
+      var d=dayOf(m.at);
+      if(d!==prevDay){h+='<div class="daysep">'+esc(d)+'</div>';prevDay=d}
+      var mine=m.name===MYNAME;
+      h+='<div class="msg '+(mine?'me':'them')+'">'+
+         (mine?'':'<div class="who" style="color:var(--ac2)">'+esc(m.name)+'</div>')+
+         esc(m.text)+
+         '<div class="at">'+hhmm(m.at)+'</div></div>';
+    });
+    h+='</div>';
+  }
+  h+='<div class="composer">'+
+     '<textarea id="cin" rows="1" placeholder="Messaggio" maxlength="300"></textarea>'+
+     '<button class="send" id="csend" disabled aria-label="Invia">'+
+     '<svg viewBox="0 0 24 24"><path d="M5 12h13"/><path d="M12 5l7 7-7 7"/></svg></button></div>';
+  return h;
 }
 function myStats(){
   var mine=HIST.filter(function(e){return e.name===MYNAME});
@@ -715,6 +807,25 @@ function wire(){
   if(g('bnew2'))g('bnew2').onclick=newGame;
   if(g('bundo'))g('bundo').onclick=undoLast;
   if(g('bclear'))g('bclear').onclick=clearHist;
+  if(g('cin')){
+    var ta=g('cin'),sb=g('csend');
+    function grow(){ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,100)+'px'}
+    function sync(){sb.disabled=!ta.value.trim()}
+    ta.oninput=function(){grow();sync()};
+    function fire(){
+      var t=ta.value.trim();
+      if(!t||!CHAT_SEND)return;
+      ta.value='';grow();sync();tap();
+      CHAT_SEND(t);
+    }
+    sb.onclick=fire;
+    ta.onkeydown=function(e){
+      if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();fire()}
+    };
+    sync();
+    var box=document.querySelector('.chat');
+    if(box)window.scrollTo(0,document.body.scrollHeight);
+  }
   Array.prototype.forEach.call(app.querySelectorAll('[data-h]'),function(b){
     b.onclick=function(){
       var i=+b.getAttribute('data-h');
@@ -839,6 +950,15 @@ window.SCORE={
   get G(){return G}, get HIST(){return HIST},
   writeGame:function(g){return writeGame(g)},
   writeHist:function(h){return writeHist(h)},
+  me:function(){return MYNAME},
+  toast:function(m){showToast(m)},
+  chatOn:function(sendFn){CHAT_ON=true;CHAT_SEND=sendFn;paintBadge()},
+  setChat:function(list){
+    CHAT=list||[];
+    var wasBottom=(window.innerHeight+window.scrollY>=document.body.scrollHeight-80);
+    render();
+    if(NAV==='chat'&&wasBottom)window.scrollTo(0,document.body.scrollHeight);
+  },
   apply:function(game,hist){
     if(game){
       G=game;
@@ -903,7 +1023,8 @@ if (cfg && cfg.projectId) {
 
   try {
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
-    const { getFirestore, doc, onSnapshot, setDoc } =
+    const { getFirestore, doc, onSnapshot, setDoc,
+            collection, addDoc, query, orderBy, limit, serverTimestamp } =
       await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
 
     const db  = getFirestore(initializeApp(cfg));
@@ -938,6 +1059,30 @@ if (cfg && cfg.projectId) {
       applying = true;
       try { window.SCORE.apply(incoming.game, incoming.hist); } finally { applying = false; }
     }, () => showBar('Partita <b>' + ROOM + '</b> · sincronizzazione interrotta'));
+
+    // -- chat: un documento per messaggio, dentro la stanza --------------
+    const msgs = collection(ref, 'messages');
+
+    window.SCORE.chatOn(text => {
+      addDoc(msgs, {
+        name: (window.SCORE.me && window.SCORE.me()) || 'Anonimo',
+        text: String(text).slice(0, 300),
+        at: Date.now(),
+        ts: serverTimestamp()
+      }).catch(() => window.SCORE.toast && window.SCORE.toast('Messaggio non inviato'));
+    });
+
+    // gli ultimi 100, riordinati dal piu vecchio al piu recente
+    onSnapshot(query(msgs, orderBy('at', 'desc'), limit(100)), snap => {
+      const list = [];
+      snap.forEach(d => {
+        const m = d.data();
+        if (m && typeof m.text === 'string' && typeof m.name === 'string' && typeof m.at === 'number')
+          list.push({ name: m.name, text: m.text, at: m.at });
+      });
+      list.sort((a, b) => a.at - b.at);
+      window.SCORE.setChat(list);
+    }, () => {});
 
   } catch (e) {
     showBar('Partita <b>' + ROOM + '</b> · offline, i punteggi restano su questo telefono');
