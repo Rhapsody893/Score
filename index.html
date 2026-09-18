@@ -199,8 +199,8 @@ body{padding-bottom:max(7.6rem,calc(5.4rem + env(safe-area-inset-bottom)))}
   padding:.85rem .9rem;color:var(--tx);cursor:pointer;min-height:56px;
   transition:transform .08s,border-color .15s}
 .act:active{transform:scale(.985)}
-.act .t{font-size:.92rem;font-weight:600}
-.act .d{font-size:.72rem;color:var(--t2);margin-top:.1rem}
+.act .t{display:block;font-size:.92rem;font-weight:600}
+.act .d{display:block;font-size:.72rem;color:var(--t2);margin-top:.1rem}
 .act .ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .act .ic svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .act .go{margin-left:auto;color:var(--t2);font-size:.8rem}
@@ -251,8 +251,8 @@ body{padding-bottom:max(7.6rem,calc(5.4rem + env(safe-area-inset-bottom)))}
 .send:active{transform:scale(.92)}
 .send svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 body.chatting{padding-bottom:max(11.1rem,calc(8.5rem + env(safe-area-inset-bottom)))}
-.toast{position:fixed;bottom:max(7.9rem,calc(5.6rem + env(safe-area-inset-bottom)));left:50%;transform:translateX(-50%) translateY(70px);background:var(--s2);border:1px solid var(--bo);border-radius:10px;padding:.55rem 1rem;font-size:.8rem;font-weight:500;transition:transform .22s;z-index:200;white-space:nowrap}
-.toast.show{transform:translateX(-50%) translateY(0)}
+.toast{position:fixed;bottom:max(7.9rem,calc(5.6rem + env(safe-area-inset-bottom)));left:50%;transform:translateX(-50%) translateY(70px);background:var(--s2);border:1px solid var(--bo);border-radius:10px;padding:.55rem 1rem;font-size:.8rem;font-weight:500;z-index:200;white-space:nowrap;opacity:0;visibility:hidden;pointer-events:none;transition:transform .22s,opacity .22s,visibility .22s}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
 .sb{background:var(--su);border:1px solid var(--bo);border-radius:var(--r);padding:.6rem .8rem;display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--t2)}
 .sb b{color:var(--tx);font-weight:600;font-family:ui-monospace,monospace;letter-spacing:.04em}
 .sb .btn{padding:.28rem .6rem;font-size:.72rem;margin-left:auto;flex-shrink:0}
@@ -399,7 +399,7 @@ function writeHist(entries){
 
 // ── actions ───────────────────────────────────────────────
 function blankGame(players){
-  return{players:players||[],activePlayer:0,activeFrame:0,ballInFrame:0,undo:null,finished:false,date:new Date().toLocaleDateString('it-IT')};
+  return{players:players||[],activePlayer:0,activeFrame:0,ballInFrame:0,undos:[],finished:false,date:new Date().toLocaleDateString('it-IT')};
 }
 async function newGame(){
   if(!G||!G.players.length){openModal();return}
@@ -413,8 +413,11 @@ async function newGame(){
 function recordBall(pins){
   if(!G||G.finished)return;
   var g=JSON.parse(JSON.stringify(G));
-  g.undo={ap:g.activePlayer,af:g.activeFrame,bf:g.ballInFrame,
-          frames:JSON.parse(JSON.stringify(g.players[g.activePlayer].frames))};
+  if(!g.undos)g.undos=[];
+  g.undos.push({ap:g.activePlayer,af:g.activeFrame,bf:g.ballInFrame,
+                frames:JSON.parse(JSON.stringify(g.players[g.activePlayer].frames))});
+  // una partita intera sta abbondantemente in 60 passi
+  if(g.undos.length>60)g.undos.shift();
   var p=g.players[g.activePlayer];
   p.frames[g.activeFrame].balls.push(pins);
   // advance
@@ -440,11 +443,12 @@ function recordBall(pins){
   writeGame(g);
 }
 function undoLast(){
-  if(!G||!G.undo)return;
-  var g=JSON.parse(JSON.stringify(G)),u=g.undo;
+  if(!G||!G.undos||!G.undos.length)return;
+  var g=JSON.parse(JSON.stringify(G));
+  var u=g.undos.pop();
   g.players[u.ap].frames=u.frames;
   g.activePlayer=u.ap;g.activeFrame=u.af;g.ballInFrame=u.bf;
-  g.finished=false;g.undo=null;
+  g.finished=false;
   writeGame(g);
 }
 var PICKED_W=null;
@@ -475,7 +479,7 @@ function addPlayer(){
   err.style.display='none';
   var g=G?JSON.parse(JSON.stringify(G)):blankGame([]);
   g.players.push({name:name,weight:PICKED_W,colorIdx:g.players.length,frames:emptyFrames()});
-  if(!g.finished&&g.activeFrame===0&&g.ballInFrame===0)g.undo=null;
+  if(!g.finished&&g.activeFrame===0&&g.ballInFrame===0)g.undos=[];
   el.value='';PICKED_W=null;renderWeights();
   writeGame(g).then(function(){showToast(name+' aggiunto')});
 }
@@ -580,7 +584,7 @@ function gameHTML(){
       for(var j=max-1;j>=1;j--)h+='<button class="pb" data-pin="'+j+'">'+j+'</button>';
     }
     h+='<button class="pb p0" data-pin="0">— 0</button></div>';
-    if(G.undo)h+='<div class="ub"><span class="ul">Tiro sbagliato?</span><button class="btn" id="bundo" style="font-size:.75rem;padding:.28rem .7rem">↩ Annulla</button></div>';
+    if(G.undos&&G.undos.length)h+='<div class="ub"><span class="ul">Puoi tornare indietro di '+G.undos.length+(G.undos.length===1?' tiro':' tiri')+'</span><button class="btn" id="bundo" style="font-size:.75rem;padding:.28rem .7rem">↩ Annulla</button></div>';
     h+='</div>';
   }
   h+='<div class="pg">';
@@ -940,6 +944,9 @@ var saved=load();
 G=(saved&&saved.game)||blankGame([]);
 if(!G.players)G.players=[];
 G.players.forEach(function(p){if(!p.frames)p.frames=emptyFrames()});
+// partite salvate prima dell'annulla illimitato
+if(!G.undos)G.undos=G.undo?[G.undo]:[];
+delete G.undo;
 HIST=(saved&&saved.hist)||[];
 try{MYNAME=localStorage.getItem('score_name')||null}catch(e){}
 setConn(true,'Su questo dispositivo');
@@ -964,6 +971,8 @@ window.SCORE={
       G=game;
       if(!G.players)G.players=[];
       G.players.forEach(function(p){if(!p.frames)p.frames=emptyFrames()});
+      if(!G.undos)G.undos=G.undo?[G.undo]:[];
+      delete G.undo;
     }
     if(hist)HIST=hist;
     persist();render();
