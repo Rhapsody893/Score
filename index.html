@@ -64,17 +64,18 @@ h1{font-size:1.3rem;font-weight:700;letter-spacing:-.02em;background:linear-grad
 .fs{text-align:center;font-size:.6rem;color:var(--t2);padding:2px 0;min-height:14px}
 .fs.done{color:var(--ac);font-weight:600}
 .ipad{background:var(--su);border-radius:var(--r);border:1px solid var(--bo);padding:.9rem;margin-bottom:.75rem}
-.iw{font-size:.8rem;color:var(--t2);margin-bottom:.55rem}
+.iw{font-size:.88rem;color:var(--t2);margin-bottom:.7rem}
 .iw strong{color:var(--tx)}
-.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
-.pb{padding:.5rem .2rem;border-radius:8px;border:1px solid var(--bo);background:var(--s2);color:var(--tx);font-size:.85rem;font-weight:600;cursor:pointer;text-align:center;font-family:inherit;transition:all .1s}
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pb{padding:.5rem .2rem;border-radius:10px;border:1px solid var(--bo);background:var(--s2);color:var(--tx);font-size:1.05rem;font-weight:600;cursor:pointer;text-align:center;font-family:inherit;transition:all .1s}
 .pb:hover{border-color:var(--ac);color:var(--ac)}
 .pb:active{transform:scale(.95)}
 .pb.pX{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:var(--st)}
 .pb.pS{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.25);color:var(--sp)}
 .pb.p0{color:#555}
-.ub{display:flex;align-items:center;justify-content:space-between;margin-top:.55rem;padding-top:.55rem;border-top:1px solid var(--bo)}
-.ul{font-size:.72rem;color:var(--t2)}
+.ub{display:flex;align-items:center;justify-content:space-between;gap:.7rem;margin-top:.7rem;padding-top:.7rem;border-top:1px solid var(--bo)}
+.ub .btn{flex-shrink:0}
+.ul{font-size:.8rem;color:var(--t2)}
 .end{background:var(--su);border-radius:var(--r);border:1px solid var(--bo);padding:1.1rem;text-align:center;margin-bottom:.8rem}
 .et{font-size:.95rem;font-weight:700;margin-bottom:.2rem}
 .es{font-size:.8rem;color:var(--t2);margin-bottom:.85rem}
@@ -125,7 +126,7 @@ body{padding-bottom:max(7.6rem,calc(5.4rem + env(safe-area-inset-bottom)))}
 }
 .tb{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-  min-height:48px;padding:.35rem 0;border:none;background:none;cursor:pointer;
+  min-height:54px;padding:.4rem 0;border:none;background:none;cursor:pointer;
   color:var(--t2);font-family:inherit;font-size:.65rem;font-weight:500;
   transition:color .18s;
 }
@@ -137,8 +138,8 @@ body{padding-bottom:max(7.6rem,calc(5.4rem + env(safe-area-inset-bottom)))}
 
 /* ── touch feedback ──────────────────────────────────────── */
 .btn,.pb,.tb{-webkit-user-select:none;user-select:none}
-.btn{min-height:36px}
-.pb{min-height:46px;transition:transform .08s,background .15s,border-color .15s}
+.btn{min-height:44px;padding-left:.9rem;padding-right:.9rem}
+.pb{min-height:60px;transition:transform .08s,background .15s,border-color .15s}
 .pb:active{transform:scale(.93)}
 .btn:active{transform:scale(.96)}
 /* pointer devices only: hover shouldn't stick on touch */
@@ -169,10 +170,10 @@ body{padding-bottom:max(7.6rem,calc(5.4rem + env(safe-area-inset-bottom)))}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
 }
-.wlabel{font-size:.74rem;color:var(--t2);margin:.1rem 0 .45rem}
-.wgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:.75rem}
-.wb{min-height:38px;border-radius:8px;border:1px solid var(--bo);background:var(--s2);
-    color:var(--tx);font-size:.8rem;font-weight:600;font-family:inherit;cursor:pointer;
+.wlabel{font-size:.82rem;color:var(--t2);margin:.1rem 0 .5rem}
+.wgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:.75rem}
+.wb{min-height:52px;border-radius:10px;border:1px solid var(--bo);background:var(--s2);
+    color:var(--tx);font-size:.95rem;font-weight:600;font-family:inherit;cursor:pointer;
     transition:transform .08s,border-color .15s,background .15s}
 .wb:active{transform:scale(.93)}
 .wb[aria-pressed="true"]{background:rgba(124,106,255,.16);border-color:var(--ac);color:var(--ac2)}
@@ -218,10 +219,10 @@ body{padding-bottom:max(7.6rem,calc(5.4rem + env(safe-area-inset-bottom)))}
   font-family:inherit;font-size:.7rem;font-weight:500;cursor:pointer;min-height:64px;justify-content:center}
 .mi:active{transform:scale(.96)}
 .mi svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.back{display:flex;align-items:center;justify-content:center;width:34px;height:34px;flex-shrink:0;
+.back{display:flex;align-items:center;justify-content:center;width:44px;height:44px;flex-shrink:0;margin-left:-.35rem;
   border-radius:9px;border:1px solid var(--bo);background:var(--su);color:var(--tx);cursor:pointer;font-family:inherit}
 .back:active{transform:scale(.93)}
-.back svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.back svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .tb{position:relative}
 .badge{position:absolute;top:.15rem;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;
   border-radius:8px;background:var(--re);color:#fff;font-size:.6rem;font-weight:700;
@@ -245,11 +246,11 @@ body{padding-bottom:max(7.6rem,calc(5.4rem + env(safe-area-inset-bottom)))}
   padding:.55rem .8rem;color:var(--tx);font-size:.88rem;font-family:inherit;outline:none;
   max-height:100px;min-height:38px;line-height:1.35}
 .composer textarea:focus{border-color:var(--ac)}
-.send{width:38px;height:38px;flex-shrink:0;border-radius:50%;border:none;background:var(--ac);
+.send{width:46px;height:46px;flex-shrink:0;border-radius:50%;border:none;background:var(--ac);
   color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
 .send:disabled{opacity:.35}
 .send:active{transform:scale(.92)}
-.send svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.send svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 body.chatting{padding-bottom:max(11.1rem,calc(8.5rem + env(safe-area-inset-bottom)))}
 .toast{position:fixed;bottom:max(7.9rem,calc(5.6rem + env(safe-area-inset-bottom)));left:50%;transform:translateX(-50%) translateY(70px);background:var(--s2);border:1px solid var(--bo);border-radius:10px;padding:.55rem 1rem;font-size:.8rem;font-weight:500;z-index:200;white-space:nowrap;opacity:0;visibility:hidden;pointer-events:none;transition:transform .22s,opacity .22s,visibility .22s}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
@@ -561,7 +562,7 @@ function gameHTML(){
       '<div class="wlabel" style="text-align:center">Peso della palla</div>'+
       '<div class="wgrid" id="jwgrid"></div>'+
       '<div class="err" id="join-err" style="display:none"></div>'+
-      '<button class="btn btn-p" id="joinbtn" style="width:100%;padding:.65rem">Entra</button></div>';
+      '<button class="btn btn-p" id="joinbtn" style="width:100%;padding:.85rem;font-size:1rem">Entra</button></div>';
   }
   if(NAV==='home')return homeHTML();
   var h='<div class="sh">'+backBtn()+'<span class="sh-t" style="flex:1">'+(G.finished?'Partita conclusa':G.players.length?'Partita in corso':'Partita')+'</span><div style="display:flex;gap:5px"><button class="btn" id="bplayers">Giocatori</button><button class="btn btn-p" id="bnew">Nuova</button></div></div>';
@@ -569,7 +570,7 @@ function gameHTML(){
   if(G.finished){
     var rk=G.players.slice().sort(function(a,b){return total(b.frames)-total(a.frames)});
     var w=rk[0],c=PAL[w.colorIdx%6];
-    h+='<div class="end"><div class="et">🏆 '+esc(w.name)+' vince!</div><div class="es">Punteggio <strong style="color:'+c.c+'">'+total(w.frames)+'</strong></div><button class="btn btn-p" id="bnew2" style="padding:.5rem 1.3rem">Nuova partita</button></div>';
+    h+='<div class="end"><div class="et">🏆 '+esc(w.name)+' vince!</div><div class="es">Punteggio <strong style="color:'+c.c+'">'+total(w.frames)+'</strong></div><button class="btn btn-p" id="bnew2" style="padding:.7rem 1.4rem">Nuova partita</button></div>';
   }else{
     var ap=G.players[G.activePlayer],fi=G.activeFrame,bi=G.ballInFrame;
     var max=availablePins(ap.frames,fi,bi),c2=PAL[ap.colorIdx%6];
@@ -584,7 +585,7 @@ function gameHTML(){
       for(var j=max-1;j>=1;j--)h+='<button class="pb" data-pin="'+j+'">'+j+'</button>';
     }
     h+='<button class="pb p0" data-pin="0">— 0</button></div>';
-    if(G.undos&&G.undos.length)h+='<div class="ub"><span class="ul">Puoi tornare indietro di '+G.undos.length+(G.undos.length===1?' tiro':' tiri')+'</span><button class="btn" id="bundo" style="font-size:.75rem;padding:.28rem .7rem">↩ Annulla</button></div>';
+    if(G.undos&&G.undos.length)h+='<div class="ub"><span class="ul">Puoi tornare indietro di '+G.undos.length+(G.undos.length===1?' tiro':' tiri')+'</span><button class="btn" id="bundo">↩ Annulla</button></div>';
     h+='</div>';
   }
   h+='<div class="pg">';
@@ -791,7 +792,7 @@ function renderML(){
   if(!ps.length){el.innerHTML='<div style="font-size:.8rem;color:var(--t2);padding:.2rem 0">Nessun giocatore</div>';return}
   el.innerHTML=ps.map(function(p,i){
     var c=PAL[p.colorIdx%6];
-    return'<div class="mr"><div class="av" style="width:26px;height:26px;font-size:.7rem;background:'+c.bg+';color:'+c.c+'">'+esc(p.name[0].toUpperCase())+'</div><span class="pn">'+esc(p.name)+(p.weight?' <span class="wtag">'+p.weight+' lb</span>':'')+'</span><button class="btn btn-d" data-rm="'+i+'" style="padding:.2rem .5rem;font-size:.7rem">✕</button></div>';
+    return'<div class="mr"><div class="av" style="width:26px;height:26px;font-size:.7rem;background:'+c.bg+';color:'+c.c+'">'+esc(p.name[0].toUpperCase())+'</div><span class="pn">'+esc(p.name)+(p.weight?' <span class="wtag">'+p.weight+' lb</span>':'')+'</span><button class="btn btn-d" data-rm="'+i+'" style="padding:.2rem .85rem;font-size:.95rem" aria-label="Togli giocatore">✕</button></div>';
   }).join('');
   Array.prototype.forEach.call(el.querySelectorAll('[data-rm]'),function(b){
     b.onclick=function(){removePlayer(+b.getAttribute('data-rm'))};
