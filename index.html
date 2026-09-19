@@ -50,38 +50,20 @@ h1{font-size:1.3rem;font-weight:700;letter-spacing:-.02em;background:linear-grad
 .pn{font-weight:600;font-size:.86rem}
 .pl{font-size:.65rem;color:var(--t2)}
 .ps{font-size:1.4rem;font-weight:800;letter-spacing:-.03em}
-.fr-row{padding:.5rem .65rem;overflow-x:auto;scrollbar-width:none}
+.fr-row{padding:.55rem .6rem .65rem}
 .fr-row::-webkit-scrollbar{display:none}
-.fi{display:flex;gap:3px;min-width:max-content}
+.fi{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
 .fr{background:var(--s2);border-radius:6px;border:1px solid var(--bo)}
-.fr.w2{width:37px}.fr.w3{width:53px}
-.fn{text-align:center;font-size:.55rem;color:var(--t2);padding:2px 0;border-bottom:1px solid var(--bo)}
-.fb{display:flex;justify-content:center;align-items:center;gap:2px;padding:3px 2px;min-height:23px}
-.bl{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:700;background:var(--su);border:1px solid var(--bo);color:var(--t2);flex-shrink:0}
+.fr{min-width:0}
+.fn{text-align:center;font-size:.64rem;color:var(--t2);padding:3px 0;border-bottom:1px solid var(--bo)}
+.fb{display:flex;justify-content:center;align-items:center;gap:3px;padding:5px 2px;min-height:32px}
+.bl{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;background:var(--su);border:1px solid var(--bo);color:var(--t2);flex-shrink:0}
 .bl.X{background:rgba(245,158,11,.15);color:var(--st);border-color:rgba(245,158,11,.3)}
 .bl.S{background:rgba(52,211,153,.12);color:var(--sp);border-color:rgba(52,211,153,.25)}
 .bl.G{color:#444}
-.fs{text-align:center;font-size:.6rem;color:var(--t2);padding:2px 0;min-height:14px}
+.fs{text-align:center;font-size:.82rem;font-weight:600;color:var(--t2);padding:3px 0 1px;min-height:19px}
 .fs.done{color:var(--ac);font-weight:600}
 .ipad{background:var(--su);border-radius:var(--r);border:1px solid var(--bo);padding:.9rem;margin-bottom:.75rem}
-/* ── riquadro grande: frame corrente e due precedenti ────── */
-.fw{display:flex;gap:8px;margin-top:.85rem}
-.bfr{flex:1;min-width:0;background:var(--s2);border:1px solid var(--bo);border-radius:12px;overflow:hidden;transition:border-color .15s,background .15s}
-.bfr.cur{border-color:var(--ac);background:rgba(124,106,255,.08)}
-.bfn{text-align:center;font-size:.72rem;font-weight:600;color:var(--t2);padding:5px 0;border-bottom:1px solid var(--bo)}
-.bfr.cur .bfn{color:var(--ac2)}
-.bfb{display:flex;justify-content:center;align-items:center;gap:5px;padding:10px 4px;min-height:50px}
-.bbl{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;
-     font-size:1.05rem;font-weight:700;background:var(--su);border:1px solid var(--bo);color:var(--t2);flex-shrink:0}
-.bbl.X{background:rgba(245,158,11,.15);color:var(--st);border-color:rgba(245,158,11,.3)}
-.bbl.S{background:rgba(52,211,153,.12);color:var(--sp);border-color:rgba(52,211,153,.25)}
-.bbl.G{color:#444}
-.bbl.e{background:none;border-style:dashed;border-color:var(--bo);color:transparent}
-.bfr.t10 .bbl{width:25px;height:25px;border-radius:7px;font-size:.85rem;gap:3px}
-.bfs{text-align:center;font-size:1.25rem;font-weight:700;padding:2px 0 9px;color:var(--tx);min-height:1.9rem}
-.bfs.pend{color:var(--t2);font-weight:500;font-size:1rem}
-.fwt{display:flex;justify-content:center;margin-top:.7rem}
-.allf{margin-top:.85rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .iw{font-size:.88rem;color:var(--t2);margin-bottom:.7rem}
 .iw strong{color:var(--tx)}
 .pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
@@ -471,7 +453,6 @@ function undoLast(){
   writeGame(g);
 }
 var PICKED_W=null;
-var SHOWALL=false;   // il riquadro grande mostra 3 frame o tutti e 10
 function renderWeights(){
   var g=document.getElementById('wgrid');
   if(!g)return;
@@ -572,25 +553,6 @@ function watchersHTML(){
     return'<div class="wchip'+(p.isMe?' me':'')+'"><span class="dot on"></span>'+esc(p.name)+(p.isMe?' (tu)':'')+'</div>';
   }).join('')+'</div>';
 }
-// mostra il frame in corso e i due che lo precedono, in grande
-function focusHTML(frames,fi){
-  var sc=scores(frames);
-  var start=Math.max(0,Math.min(fi-2,7));   // tiene sempre tre riquadri
-  var h='<div class="fw">';
-  for(var f=start;f<start+3;f++){
-    var last=f===9,cur=f===fi;
-    h+='<div class="bfr'+(cur?' cur':'')+(last?' t10':'')+'"><div class="bfn">Frame '+(f+1)+'</div><div class="bfb">';
-    var n=last?3:2;
-    for(var b=0;b<n;b++){
-      var lb=label(frames,f,b);
-      if(!last&&b===1&&label(frames,f,0)==='X'){h+='<div class="bbl e">·</div>';continue}
-      h+= lb ? '<div class="'+blcls(lb).replace('bl','bbl')+'">'+lb+'</div>'
-             : '<div class="bbl e">·</div>';
-    }
-    h+='</div><div class="bfs'+(sc[f]===null?' pend':'')+'">'+(sc[f]===null?'—':sc[f])+'</div></div>';
-  }
-  return h+'</div>';
-}
 function gameHTML(){
   if(!G)return'<div class="empty"><div class="ei">🎳</div><p>Caricamento della partita…</p></div>';
   if(!MYNAME){
@@ -623,10 +585,6 @@ function gameHTML(){
       for(var j=max-1;j>=1;j--)h+='<button class="pb" data-pin="'+j+'">'+j+'</button>';
     }
     h+='<button class="pb p0" data-pin="0">— 0</button></div>';
-    h+= SHOWALL ? '<div class="allf">'+framesHTML(ap.frames)+'</div>'
-               : focusHTML(ap.frames,fi);
-    h+='<div class="fwt"><button class="btn" id="ballf">'+
-       (SHOWALL?'Mostra solo gli ultimi frame':'Mostra tutti e 10 i frame')+'</button></div>';
     if(G.undos&&G.undos.length)h+='<div class="ub"><span class="ul">Puoi tornare indietro di '+G.undos.length+(G.undos.length===1?' tiro':' tiri')+'</span><button class="btn" id="bundo">↩ Annulla</button></div>';
     h+='</div>';
   }
@@ -758,14 +716,14 @@ function framesHTML(frames,compact){
   var sc=scores(frames),h='<div class="fr-row"><div class="fi">';
   for(var f=0;f<10;f++){
     var last=f===9;
-    h+='<div class="fr '+(last?'w3':'w2')+'"><div class="fn">'+(f+1)+'</div><div class="fb">';
+    h+='<div class="fr"><div class="fn">'+(f+1)+'</div><div class="fb">';
     if(!last){
       var l0=label(frames,f,0),l1=label(frames,f,1);
-      if(l0==='X')h+='<span style="width:7px"></span><div class="'+blcls(l0)+'">X</div>';
+      if(l0==='X')h+='<div class="'+blcls(l0)+'">X</div>';
       else h+='<div class="'+blcls(l0)+'">'+l0+'</div><div class="'+blcls(l1)+'">'+l1+'</div>';
     }else{
       for(var b=0;b<3;b++){var lb=label(frames,9,b);
-        h+='<div class="'+blcls(lb)+'" style="width:15px;height:15px;font-size:.55rem">'+lb+'</div>'}
+        h+='<div class="'+blcls(lb)+'" style="width:16px;height:16px;font-size:.6rem">'+lb+'</div>'}
     }
     h+='</div><div class="fs'+(sc[f]!==null?' done':'')+'">'+(sc[f]!==null?sc[f]:'')+'</div></div>';
   }
@@ -853,7 +811,6 @@ function wire(){
   if(g('bnew'))g('bnew').onclick=newGame;
   if(g('bnew2'))g('bnew2').onclick=newGame;
   if(g('bundo'))g('bundo').onclick=undoLast;
-  if(g('ballf'))g('ballf').onclick=function(){SHOWALL=!SHOWALL;tap();render()};
   if(g('bclear'))g('bclear').onclick=clearHist;
   if(g('cin')){
     var ta=g('cin'),sb=g('csend');
